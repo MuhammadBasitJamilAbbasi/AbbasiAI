@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abbasi AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for file upload */
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            border: 2px dashed #6b7280;
+            border-radius: 0.75rem;
+        }
+        .file-upload-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        /* Chat bubble styling */
+        .ai-bubble {
+            border-radius: 1rem 1rem 1rem 0;
+            background-color: #f3f4f6;
+        }
+        .user-bubble {
+            border-radius: 1rem 1rem 0 1rem;
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        /* Smooth animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Loading animation */
+        .loader {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            border: 2px solid rgba(59,130,246,0.2);
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm py-4">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-600 flex items-center">
+                <i class="fas fa-brain mr-2"></i> Abbasi AI Assistant
+            </h1>
+            <div class="flex space-x-4">
+                <button id="new-chat-btn" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
+                    <i class="fas fa-plus mr-2"></i> New Chat
+                </button>
+                <button id="settings-btn" class="p-2 text-gray-500 hover:text-blue-600 transition">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <!-- PDF Upload Section -->
+        <section id="upload-section" class="flex flex-col items-center justify-center h-full">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Train Your AI on PDF Documents</h2>
+                <p class="text-gray-600 max-w-lg mx-auto">
+                    Upload PDF files to build your knowledge base. The AI will analyze the content and
+                    answer any questions you have about them.
+                </p>
+            </div>
+            
+            <div class="file-upload w-full max-w-lg h-64 flex flex-col items-center justify-center p-8 mb-6 transition-all hover:border-blue-500 hover:bg-blue-50 rounded-xl">
+                <i class="fas fa-file-pdf text-4xl text-blue-500 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-700 mb-2">Drag & Drop PDF Files Here</h3>
+                <p class="text-gray-500 text-sm mb-4">or</p>
+                <label class="px-6 py-3 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition">
+                    <i class="fas fa-cloud-upload-alt mr-2"></i> Browse Files
+                    <input type="file" id="pdf-upload" class="file-upload-input" accept=".pdf" multiple>
+                </label>
+                <p class="text-gray-400 text-xs mt-3">Supports multiple PDF files</p>
+            </div>
+            
+            <div id="upload-progress" class="w-full max-w-lg hidden">
+                <div class="flex items-center mb-2">
+                    <p class="text-sm font-medium text-gray-700 mr-2">Processing...</p>
+                    <div class="flex-1 h-1 bg-gray-200 rounded-full">
+                        <div id="progress-bar" class="h-full bg-blue-600 rounded-full w-0 transition-all"></div>
+                    </div>
+                    <span id="progress-percent" class="text-xs text-gray-500 ml-2">0%</span>
+                </div>
+                <div id="upload-status" class="text-sm text-gray-500"></div>
+            </div>
+            
+           <!--  <div id="tech-preview" class="mt-12 p-6 bg-white rounded-xl shadow-sm border border-gray-200 hidden">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">Implementation Options</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-server text-blue-500 mr-2"></i>
+                            <h4 class="font-medium text-gray-800">Self-Hosted Solution</h4>
+                        </div>
+                        <p class="text-sm text-gray-600">Use open-source models (LLaMA, GPT4All) with LangChain/ChromaDB for local processing</p>
+                    </div>
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                            <h4 class="font-medium text-gray-800">Cloud API Service</h4>
+                        </div>
+                        <p class="text-sm text-gray-600">Integrate with OpenAI, Anthropic or Google Gemini for higher-quality responses</p>
+                    </div>
+                </div>
+            </div> -->
+        </section>
+
+        <!-- Chat Interface (hidden initially) -->
+        <section id="chat-section" class="flex flex-col h-full hidden">
+            <div id="chat-header" class="flex items-center mb-6">
+                <button id="back-to-upload" class="mr-4 p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-gray-100">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="text-xl font-semibold text-gray-800">Chat with your PDFs</h2>
+                <div id="model-status" class="ml-auto flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    Ready
+                </div>
+            </div>
+            
+            <div id="chat-container" class="flex-1 overflow-y-auto mb-6 space-y-4">
+                <!-- Messages will be appended here -->
+                <div class="ai-bubble p-4 max-w-[80%] fade-in">
+                    <p>Hello! I've processed your PDF documents. Ask me anything about their contents.</p>
+                    <div class="mt-3 space-y-2">
+                        <div class="text-xs text-gray-500">Try asking:</div>
+                        <button class="suggest-btn px-3 py-1.5 text-left text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition w-full">
+                            "What are the key points from the uploaded documents?"
+                        </button>
+                        <button class="suggest-btn px-3 py-1.5 text-left text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition w-full">
+                            "Summarize the main ideas from page 20-30"
+                        </button>
+                        <button class="suggest-btn px-3 py-1.5 text-left text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition w-full">
+                            "Find references to artificial intelligence"
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative">
+                <textarea id="user-input" rows="2" class="w-full p-4 pr-16 bg-white border border-gray-300 rounded-xl shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ask something about your PDFs..."></textarea>
+                <button id="send-btn" class="absolute right-3 bottom-3 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <button id="mic-btn" class="absolute right-12 bottom-3 p-2 text-gray-500 hover:text-blue-600 transition">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t py-4">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+            <p>Abbasi AI Assistant - Built with AI & ❤️ Muhammad Basit Abbasi</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // UI Elements
+            const uploadSection = document.getElementById('upload-section');
+            const chatSection = document.getElementById('chat-section');
+            const pdfUpload = document.getElementById('pdf-upload');
+            const uploadProgress = document.getElementById('upload-progress');
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercent = document.getElementById('progress-percent');
+            const uploadStatus = document.getElementById('upload-status');
+            const techPreview = document.getElementById('tech-preview');
+            const chatContainer = document.getElementById('chat-container');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const backToUpload = document.getElementById('back-to-upload');
+            const newChatBtn = document.getElementById('new-chat-btn');
+            const suggestBtns = document.getElementsByClassName('suggest-btn');
+            
+            // Toggle UI sections
+            function toggleSections() {
+                uploadSection.classList.toggle('hidden');
+                chatSection.classList.toggle('hidden');
+            }
+            
+            // Simulate PDF processing
+            pdfUpload.addEventListener('change', function(e) {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    uploadProgress.classList.remove('hidden');
+                    techPreview.classList.remove('hidden');
+                    
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += Math.random() * 10;
+                        if (progress > 100) progress = 100;
+                        
+                        progressBar.style.width = `${progress}%`;
+                        progressPercent.textContent = `${Math.floor(progress)}%`;
+                        
+                        if (files.length === 1) {
+                            uploadStatus.textContent = `Processing ${files[0].name}...`;
+                        } else {
+                            uploadStatus.textContent = `Processing ${files.length} files...`;
+                        }
+                        
+                        if (progress === 100) {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                toggleSections();
+                            }, 500);
+                        }
+                    }, 300);
+                }
+            });
+            
+            // Chat functionality
+            function addMessage(text, isUser) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `${isUser ? 'user-bubble ml-auto' : 'ai-bubble'} p-4 max-w-[80%] fade-in`;
+                messageDiv.innerHTML = `<p>${text}</p>`;
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            sendBtn.addEventListener('click', function() {
+                const question = userInput.value.trim();
+                if (question) {
+                    addMessage(question, true);
+                    userInput.value = '';
+                    
+                    // Simulate AI response
+                    setTimeout(() => {
+                        addMessage("This is Frontend. We will soon connect with our AI model now it is under Constrtuction", false);
+                    }, 1000);
+                }
+            });
+            
+            // Allow Enter key to send message (but Shift+Enter for new line)
+            userInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendBtn.click();
+                }
+            });
+            
+            // Suggestion buttons
+            for (let btn of suggestBtns) {
+                btn.addEventListener('click', function() {
+                    userInput.value = this.textContent.trim();
+                    userInput.focus();
+                });
+            }
+            
+            // Navigation
+            backToUpload.addEventListener('click', toggleSections);
+            newChatBtn.addEventListener('click', function() {
+                if (!chatSection.classList.contains('hidden')) {
+                    toggleSections();
+                }
+            });
+            
+            // Simulate drag and drop
+            const fileUploadDiv = document.querySelector('.file-upload');
+            fileUploadDiv.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadDiv.classList.add('border-blue-500', 'bg-blue-50');
+            });
+            
+            fileUploadDiv.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                fileUploadDiv.classList.remove('border-blue-500', 'bg-blue-50');
+            });
+            
+            fileUploadDiv.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadDiv.classList.remove('border-blue-500', 'bg-blue-50');
+                pdfUpload.files = e.dataTransfer.files;
+                pdfUpload.dispatchEvent(new Event('change'));
+            });
+        });
+    </script>
+</body>
+</html>
