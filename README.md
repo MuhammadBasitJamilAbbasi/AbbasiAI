@@ -2,7 +2,7 @@
 
 A modern web interface for interacting with PDF documents using AI, built with HTML, CSS, and JavaScript.
 
-![Preview Screenshot](https://i.imgur.com/EXAMPLE.png) *(example screenshot placeholder)*
+
 
 ## Features
 
