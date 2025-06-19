@@ -1,11 +1,6 @@
 # AbbasiAI - PDF AI Assistant Web Application
 
 A modern web interface for interacting with PDF documents using AI, built with HTML, CSS, and JavaScript.
-![Example Image](https://raw.githubusercontent.com/MuhammadBasitJamilAbbasi/AbbasiAI/refs/heads/main/1.png?raw=true)
-
-
-
-
 ## Features
 
 - 📁 Upload multiple PDF files
@@ -25,6 +20,10 @@ A modern web interface for interacting with PDF documents using AI, built with H
 
 - Web browser (Chrome, Firefox, Edge recommended)
 - GitHub account (for deployment)
+- 
+![Example Image](https://raw.githubusercontent.com/MuhammadBasitJamilAbbasi/AbbasiAI/refs/heads/main/1.png?raw=true)
+
+![Example Image](https://raw.githubusercontent.com/MuhammadBasitJamilAbbasi/AbbasiAI/refs/heads/main/2.png?raw=true)
 
 ### Installation
 
