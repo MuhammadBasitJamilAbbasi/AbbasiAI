@@ -15,7 +15,7 @@ A modern web interface for interacting with PDF documents using AI, built with H
 
 ## Live Demo
 
-[Click here to view the live demo](https://rawcdn.githack.com/MuhammadBasitJamilAbbasi/AbbasiAI/16573a321b4e86154a15c9e5c6b03b73d3bea891/AI.html)
+[Click here to view the live demo](https://rawcdn.githack.com/MuhammadBasitJamilAbbasi/AbbasiAI/7fadb1d748fade50bed4bc62e10eba960b206e24/AI.html)
 
 ## Getting Started
 
