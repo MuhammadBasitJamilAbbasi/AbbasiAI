@@ -68,6 +68,82 @@ class _HomeSwapNewState extends State<HomeSwapNew> {
   bool _isLoading = false;
   Timer? timer;
 
+  /*
+    We should check if we can magically change the weather
+    (subscription active) and if not, display the paywall.
+  */
+  // void openSubscriptionSheetMethod() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+  //
+  //   CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+  //
+  //   if (customerInfo.entitlements.all[entitlementID] != null &&
+  //       customerInfo.entitlements.all[entitlementID]!.isActive == true ||  customerInfo.entitlements.all[entitlementID2] != null &&
+  //       customerInfo.entitlements.all[entitlementID2]!.isActive == true) {
+  //
+  //     setState(() {
+  //       _isLoading = false;
+  //       appData.entitlementIsActive = true;
+  //     });
+  //   } else {
+  //     Offerings? offerings;
+  //     try {
+  //       offerings = await Purchases.getOfferings();
+  //     } on PlatformException catch (e) {
+  //       await showDialog(
+  //           context: context,
+  //           builder: (BuildContext context) => ShowDialogToDismiss(
+  //               title: "Error", content: e.message!, buttonText: 'OK'));
+  //     }
+  //
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //
+  //     if (offerings == null || offerings.current == null) {
+  //       // offerings are empty, show a message to your user
+  //     } else {
+  //       // current offering is available, show paywall
+  //       await showModalBottomSheet(
+  //         useRootNavigator: true,
+  //         isDismissible: true,
+  //         isScrollControlled: true,
+  //         backgroundColor: Colors.white,
+  //         shape: const RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+  //         ),
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return StatefulBuilder(
+  //               builder: (BuildContext context, StateSetter setModalState) {
+  //                 return Paywall(
+  //                   offering: offerings!.current!,
+  //                 );
+  //               });
+  //         },
+  //       );
+  //     }
+  //   }
+  // }
+  //
+  // firstCall() async {
+  //   CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+  //   if (customerInfo.entitlements.all[entitlementID] != null &&
+  //       customerInfo.entitlements.all[entitlementID]!.isActive == true ||  customerInfo.entitlements.all[entitlementID2] != null &&
+  //       customerInfo.entitlements.all[entitlementID2]!.isActive == true) {
+  //     print("<===== SubScription First check========>");
+  //     setState(() {
+  //       kSubscription = true;
+  //       appData.entitlementIsActive=true;
+  //     });
+  //     print("<===== SubScription second========>");
+  //     print("<==========  " + kSubscription.toString() + " ============>");
+  //     print("<==========  " + appData.entitlementIsActive.toString() + " ============>");
+  //   }
+  //
+  // }
 
   @override
   void dispose() {
@@ -171,23 +247,33 @@ class _HomeSwapNewState extends State<HomeSwapNew> {
                             ? Center(child: CircularProgressIndicator())
                             : controller.userList.length > 0
                                 ? Positioned(
-
-
+                                    left: 30,
+                                    right: 30,
+                                    top: 100,
                                     child: Container(
-
-                                      child: PageView.builder(
-
+                                      height:
+                                          MediaQuery.of(context).size.height -
+                                              180,
+                                      child: SwipableStack(
+                                        detectableSwipeDirections: const {
+                                          SwipeDirection.right,
+                                          SwipeDirection.left,
+                                        },
+                                        swipeAssistDuration: Duration(milliseconds: 10),
                                         itemCount: appData.entitlementIsActive ? controller.userList.length : controller.userList.length>25 ? 25 : controller.userList.length ,
-
-                                        itemBuilder: (context,properties) {
+                                        controller: stackController,
+                                        stackClipBehaviour: Clip.none,
+                                        allowVerticalSwipe: true,
+                                        viewFraction: 1,
+                                        builder: (context, properties) {
                                           if(appData.entitlementIsActive){
-                                          if(properties== controller.userList.length ){
+                                          if(properties.index== controller.userList.length ){
                                           //  openSubscriptionSheetMethod();
                                             controller.getData();
                                           }
                                           }
                                           else{
-                                            if(properties== 25 ){
+                                            if(properties.index== 25 ){
                                              // openSubscriptionSheetMethod();
                                               controller.getData();
                                             }
@@ -195,7 +281,7 @@ class _HomeSwapNewState extends State<HomeSwapNew> {
                                             UserModel  userModel =
                                             UserModel.fromMap(
                                                 controller.userList[
-                                                properties]
+                                                properties.index]
                                                     .data()
                                                 as Map<String, dynamic>);
                                           double datainMeter =
@@ -271,7 +357,7 @@ class _HomeSwapNewState extends State<HomeSwapNew> {
                                                         address: userModel.address.toString() ?? "",
                                                         age: userModel.age.toString() ?? "",
                                                         model: userModel,
-                                                        propertiesindex: properties,
+                                                        propertiesindex: properties.index,
                                                         height: userModel.height.toString() ?? "",
                                                         gender: userModel.gender.toString() ?? "",
                                                         image: userModel.imageUrl.toString() ?? "",
@@ -651,66 +737,66 @@ class _HomeSwapNewState extends State<HomeSwapNew> {
                                             ],
                                           );
                                         },
-//                                         onWillMoveNext:
-//                                             (index, swipeDirection) {
-//                                           if (length <
-//                                               controller.userList.length) {
-//                                             setState(() {
-//                                               length++;
-//                                             });
-//                                           }
-// // Return true for the desired swipe direction.
-//                                           switch (swipeDirection) {
-//                                             case SwipeDirection.left:
-//                                               {
-//                                                 UserModel userModel =
-//                                                     UserModel.fromMap(controller
-//                                                             .userList[index]
-//                                                             .data()
-//                                                         as Map<String,
-//                                                             dynamic>);
-//                                                 controller.ignorswap(
-//                                                   visitType: "passed",
-//                                                   opponent_user: userModel,
-//                                                 );
-//                                                 return true;
-//                                               }
-//                                             case SwipeDirection.right:
-//                                               {
-//                                                 print("====> right");
-//                                                 UserModel userModel =
-//                                                     UserModel.fromMap(controller
-//                                                             .userList[index]
-//                                                             .data()
-//                                                         as Map<String,
-//                                                             dynamic>);
-//                                                 controller.likeswap(
-//                                                   context,
-//                                                   opponent_user: userModel,
-//                                                 );
-//                                                 return true;
-//                                               }
-//                                             case SwipeDirection.up:
-//                                               {
-//                                                 print("====> up");
-//
-//                                                 return true;
-//                                               }
-//                                             case SwipeDirection.down:
-//                                               return false;
-//                                           }
-//                                         },
-//                                         horizontalSwipeThreshold: 0.8,
-//                                         verticalSwipeThreshold: 1,
-//                                         overlayBuilder: (
-//                                           context,
-//                                           properties,
-//                                         ) =>
-//                                             CardOverlay(
-//                                           swipeProgress:
-//                                               properties.swipeProgress,
-//                                           direction: properties.direction,
-//                                         ),
+                                        onWillMoveNext:
+                                            (index, swipeDirection) {
+                                          if (length <
+                                              controller.userList.length) {
+                                            setState(() {
+                                              length++;
+                                            });
+                                          }
+// Return true for the desired swipe direction.
+                                          switch (swipeDirection) {
+                                            case SwipeDirection.left:
+                                              {
+                                                UserModel userModel =
+                                                    UserModel.fromMap(controller
+                                                            .userList[index]
+                                                            .data()
+                                                        as Map<String,
+                                                            dynamic>);
+                                                controller.ignorswap(
+                                                  visitType: "passed",
+                                                  opponent_user: userModel,
+                                                );
+                                                return true;
+                                              }
+                                            case SwipeDirection.right:
+                                              {
+                                                print("====> right");
+                                                UserModel userModel =
+                                                    UserModel.fromMap(controller
+                                                            .userList[index]
+                                                            .data()
+                                                        as Map<String,
+                                                            dynamic>);
+                                                controller.likeswap(
+                                                  context,
+                                                  opponent_user: userModel,
+                                                );
+                                                return true;
+                                              }
+                                            case SwipeDirection.up:
+                                              {
+                                                print("====> up");
+
+                                                return true;
+                                              }
+                                            case SwipeDirection.down:
+                                              return false;
+                                          }
+                                        },
+                                        horizontalSwipeThreshold: 0.8,
+                                        verticalSwipeThreshold: 1,
+                                        overlayBuilder: (
+                                          context,
+                                          properties,
+                                        ) =>
+                                            CardOverlay(
+                                          swipeProgress:
+                                              properties.swipeProgress,
+                                          direction: properties.direction,
+                                        ),
                                       ),
                                     ),
                                   )
@@ -737,7 +823,31 @@ class _HomeSwapNewState extends State<HomeSwapNew> {
             },
             child:Text("")
 
-         ,
+            // Container(
+            //   height: 45,
+            //   width: 45,
+            //   decoration: BoxDecoration(
+            //       borderRadius: BorderRadius.circular(15),
+            //       color: Colors.white,
+            //       border: Border.all(color: Colors.grey.shade300)),
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(9),
+            //     child: Center(
+            //       child: Image.asset(
+            //         "assets/vip.png",
+            //         height: 45,
+            //         width: 45,
+            //       ),
+            //     ),
+            //   ),
+            //   // Padding(
+            //   //   padding: const EdgeInsets.all(5),
+            //   //   child: Center(
+            //   //     // child: Text("✨",style: TextStyle(fontSize: 22),),
+            //   //     child: Text("🛒",style: TextStyle(fontSize: 22),),
+            //   //   ),
+            //   // ),
+            // ),
           ),
           GestureDetector(
             onTap: () {
@@ -795,7 +905,14 @@ class CardOverlay extends StatelessWidget {
           opacity: isLeft ? opacity : 0,
           child: CardLabel.left(),
         ),
-       
+        // Opacity(
+        //   opacity: isUp ? opacity : 0,
+        //   child: CardLabel.up(),
+        // ),
+        // Opacity(
+        //   opacity: isDown ? opacity : 0,
+        //   child: CardLabel.down(),
+        // ),
       ],
     );
   }
@@ -832,6 +949,22 @@ class CardLabel extends StatelessWidget {
     );
   }
 
+  // factory CardLabel.up() {
+  //   return const CardLabel._(
+  //     color: Colors.blue,
+  //     image_asset: "assets/icons/liked.png",
+  //     // angle: 0,
+  //   );
+  // }
+
+  // factory CardLabel.down() {
+  //   return const CardLabel._(
+  //     color: Colors.grey,
+  //     label: 'DOWN',
+  //     angle: -_labelAngle,
+  //     alignment: Alignment(0, -0.75),
+  //   );
+  // }
 
   final Color color;
   final String image_asset;
